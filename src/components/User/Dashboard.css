@@ -1,0 +1,58 @@
+.dashboard-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.dashboard-heading {
+    color: #2874f0;
+    margin-bottom: 2rem;
+    font-weight: 500;
+}
+
+.dashboard-tabs {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.nav-tabs .nav-link {
+    color: #2874f0;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    color: #fb641b;
+    border-color: #fb641b;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.profile-form label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.profile-form input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.save-btn {
+    background: #fb641b;
+    color: white;
+    border: none;
+    padding: 0.5rem 2rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.save-btn:hover {
+    background: #e85f1b;
+}
