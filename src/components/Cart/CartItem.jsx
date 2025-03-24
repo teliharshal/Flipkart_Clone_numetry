@@ -44,7 +44,7 @@ const CartItem = ({ product, name, seller, price, cuttedPrice, image, stock, qua
                 <div className="w-full sm:w-1/6 h-28 flex-shrink-0">
                     <img draggable="false" className="h-full w-full object-contain" src={image} alt={name} />
                 </div>
-                {/* <!-- product image --> */}
+                {/* <!-- product image --> */}  
 
                 {/* <!-- description --> */}
                 <div className="flex flex-col sm:gap-5 w-full pr-6">

@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import './Sidebar.css';
 import { useSnackbar } from 'notistack';
 // import { logoutUser } from '../../../actions/userAction';
+import ManageProducts from '../ManageProducts';
 
 const navMenu = [
     {
@@ -81,6 +82,7 @@ const Sidebar = ({ activeTab, setToggleSidebar }) => {
                     {/* <span className="font-medium text-lg">{user.name}</span>
                     <span className="text-gray-300 text-sm">{user.email}</span> */}
                 </div>
+                <button onClick={() => navigate('/admin/ManageProducts')}>Manage Products</button>
                 <button onClick={()=>setToggleSidebar(false)} className="sm:hidden bg-gray-800 ml-auto rounded-full w-10 h-10 flex items-center justify-center">
                     <CloseIcon/>
                 </button>

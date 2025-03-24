@@ -39,10 +39,20 @@ const Product = ({ _id, name, images, ratings, numOfReviews, price, cuttedPrice 
             {/* <!-- product description --> */}
             <div className="flex flex-col gap-2 items-start">
                 {/* <!-- rating badge --> */}
-                <span className="text-sm text-gray-500 font-medium flex gap-2 items-center">
-                    <span className="text-xs px-1.5 py-0.5 bg-primary-green rounded-sm text-white flex items-center gap-0.5">{ratings.toFixed(1)} <StarIcon sx={{ fontSize: "14px" }} /></span>
-                    <span>({numOfReviews})</span>
-                </span>
+                <div className="flex items-center gap-1">
+                <span className="text-sm font-semibold">{ratings}</span>
+                 {Array.from({ length: 5 }, (_, i) => (
+                 <StarIcon
+                  key={i}
+                 sx={{
+                fontSize: "14px",
+                 color: i < Math.round(ratings) ? "#FFD700" : "#C0C0C0",
+                }}
+        />
+      ))}
+      <span className="text-sm text-gray-500">({numOfReviews})</span>
+              </div>
+
                 {/* <!-- rating badge --> */}
 
                 {/* <!-- price container --> */}

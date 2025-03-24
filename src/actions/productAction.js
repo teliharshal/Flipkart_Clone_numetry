@@ -233,6 +233,7 @@ export const getAllReviews = (id) => async (dispatch) => {
 export const deleteReview = (reviewId, productId) => async (dispatch) => {
     try {
         dispatch({ type: DELETE_REVIEW_REQUEST });
+        console.log(reviewId, productId);
         const { data } = await axios.delete(`${baseurl}/admin/reviews?id=${reviewId}&productId=${productId}`);
 
         dispatch({

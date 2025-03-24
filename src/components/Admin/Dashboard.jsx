@@ -25,7 +25,7 @@ const Dashboard = ({ activeTab, children }) => {
                         <button onClick={() => setToggleSidebar(true)} className="sm:hidden bg-gray-700 w-10 h-10 rounded-full shadow text-white flex items-center justify-center"><MenuIcon /></button>
                         {children}
                     </div>
-                </div>
+                </div>  
             </main>
         </>
     );

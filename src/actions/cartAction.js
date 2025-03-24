@@ -4,6 +4,7 @@ import baseurl from "../urlconfig"
 // add to cart
 export const addItemsToCart = (id, quantity = 1) => async (dispatch, getState) => {
     const { data } = await axios.get(`${baseurl}/product/${id}`);
+    console.log("data ",data);
 
     dispatch({
         type: ADD_TO_CART,
