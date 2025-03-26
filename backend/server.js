@@ -1,32 +1,38 @@
-const app = require('./app');
-const connectDatabase = require('./config/database');
-const cloudinary = require('cloudinary');
-const PORT =  5000;
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const userRoutes = require("./routes/userRoute"); 
+const { pool } = require("./config/db");
 
+// Load environment variables
+dotenv.config();
 
-// UncaughtException Error
-process.on('uncaughtException', (err) => {
-    console.log(`Error: ${err.message}`);
-    process.exit(1);
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
+app.use(express.json()); // Parses incoming JSON requests
+
+// Test Database Connection
+pool.getConnection((err, connection) => {
+    if (err) {
+        console.error("❌ Database connection failed:", err.message);
+        return;
+    }
+    console.log("✅ Connected to MySQL Database!");
+    connection.release();
 });
 
-connectDatabase();
+// Routes
+app.use("/api/users", userRoutes);
 
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+// Default route
+app.get("/", (req, res) => {
+    res.send("Welcome to the Flipkart Clone API! 🚀");
 });
 
-const server = app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`)
-});
-
-// Unhandled Promise Rejection
-process.on('unhandledRejection', (err) => {
-    console.log(`Error: ${err.message}`);
-    server.close(() => {
-        process.exit(1);
-    });
+// Start the server
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
