@@ -1,113 +1,116 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const ManageProducts = () => {
   const [products, setProducts] = useState([]);
-  const [newProduct, setNewProduct] = useState({ name: "", price: "" });
-  const [editingProduct, setEditingProduct] = useState(null); // Track editing state
+  const [formData, setFormData] = useState({
+    name: "",
+    price: "",
+    stock: "",
+    category: "",
+  });
+  const [editingProduct, setEditingProduct] = useState(null); // Track editing product
 
-  // Load products from localStorage when component mounts
-  useEffect(() => {
-    const savedProducts = JSON.parse(localStorage.getItem("products")) || [];
-    setProducts(savedProducts);
-  }, []);
-
-  // Save products to localStorage
-  const saveToLocalStorage = (updatedProducts) => {
-    localStorage.setItem("products", JSON.stringify(updatedProducts));
-    setProducts(updatedProducts);
+  // Fetch products from the backend
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/products");
+      setProducts(response.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
   };
 
-  // Add or update product
-  const handleSaveProduct = () => {
-    if (newProduct.name && newProduct.price) {
-      let updatedProducts;
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // Handle form input change
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Add or Update Product
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
       if (editingProduct) {
-        // Update existing product
-        updatedProducts = products.map((product) =>
-          product.id === editingProduct.id ? { ...newProduct, id: editingProduct.id } : product
-        );
-        setEditingProduct(null);
+        // Update product
+        await axios.put(`http://localhost:5000/api/products/update/${editingProduct._id}`, formData);
       } else {
         // Add new product
-        updatedProducts = [...products, { ...newProduct, id: Date.now() }];
+        await axios.post("http://localhost:5000/api/products/add", formData);
       }
-      saveToLocalStorage(updatedProducts);
-      setNewProduct({ name: "", price: "" });
+      fetchProducts(); // Refresh the product list
+      setFormData({ name: "", price: "", stock: "", category: "" }); // Reset form
+      setEditingProduct(null); // Reset editing state
+    } catch (error) {
+      console.error("Error saving product:", error);
     }
+  };
+
+  // Edit product
+  const editProduct = (product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      price: product.price,
+      stock: product.stock,
+      category: product.category,
+    });
   };
 
   // Delete a product
-  const handleDeleteProduct = (id) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      const updatedProducts = products.filter((product) => product.id !== id);
-      saveToLocalStorage(updatedProducts);
+  const deleteProduct = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/products/delete/${id}`);
+      fetchProducts(); // Refresh the list after deletion
+    } catch (error) {
+      console.error("Error deleting product:", error);
     }
   };
 
-  // Edit a product
-  const handleEditProduct = (product) => {
-    setNewProduct({ name: product.name, price: product.price });
-    setEditingProduct(product);
-  };
-
   return (
-    <div className="p-6 bg-gray-100 min-h-screen mt-[39px]">
-      <h2 className="text-3xl font-bold mb-6 text-gray-900">Manage Products</h2>
+    <div className="max-w-4xl mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-4">{editingProduct ? "Edit Product" : "Manage Products"}</h2>
 
       {/* Add / Edit Product Form */}
-      <div className="mb-6 flex gap-3">
-        <input
-          type="text"
-          placeholder="Product Name"
-          value={newProduct.name}
-          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-          className="border p-3 flex-1 rounded-md shadow-sm"
-        />
-        <input
-          type="number"
-          placeholder="Price"
-          value={newProduct.price}
-          onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-          className="border p-3 flex-1 rounded-md shadow-sm"
-        />
-        <button
-          onClick={handleSaveProduct}
-          className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700"
-        >
-          {editingProduct ? "Update" : "Add"} Product
+      <form onSubmit={handleSubmit} className="mb-6 bg-gray-100 p-4 rounded">
+        <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Product Name" required className="w-full p-2 mb-2 border rounded" />
+        <input type="number" name="price" value={formData.price} onChange={handleChange} placeholder="Price" required className="w-full p-2 mb-2 border rounded" />
+        <input type="number" name="stock" value={formData.stock} onChange={handleChange} placeholder="Stock" required className="w-full p-2 mb-2 border rounded" />
+        <input type="text" name="category" value={formData.category} onChange={handleChange} placeholder="Category" required className="w-full p-2 mb-2 border rounded" />
+        <button type="submit" className="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600">
+          {editingProduct ? "Update Product" : "Add Product"}
         </button>
-      </div>
+      </form>
 
-      {/* Product List */}
-      <div className="border p-4 rounded-lg shadow bg-white">
-        {products.length > 0 ? (
-          <ul>
-            {products.map((product) => (
-              <li key={product.id} className="flex justify-between items-center border-b p-3">
-                <span className="text-lg text-gray-800">
-                  {product.name} - ₹{product.price}
-                </span>
-                <div>
-                  <button
-                    onClick={() => handleEditProduct(product)}
-                    className="text-yellow-500 px-3 hover:underline"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteProduct(product.id)}
-                    className="text-red-500 px-3 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500">No products added yet.</p>
-        )}
-      </div>
+      {/* Product Table */}
+      <table className="w-full border-collapse border border-gray-300">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="border p-2">Name</th>
+            <th className="border p-2">Price</th>
+            <th className="border p-2">Stock</th>
+            <th className="border p-2">Category</th>
+            <th className="border p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product) => (
+            <tr key={product._id} className="text-center">
+              <td className="border p-2">{product.name}</td>
+              <td className="border p-2">${product.price}</td>
+              <td className="border p-2">{product.stock}</td>
+              <td className="border p-2">{product.category}</td>
+              <td className="border p-2">
+                <button onClick={() => editProduct(product)} className="bg-yellow-500 text-white px-2 py-1 rounded mr-2 hover:bg-yellow-600">Edit</button>
+                <button onClick={() => deleteProduct(product._id)} className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

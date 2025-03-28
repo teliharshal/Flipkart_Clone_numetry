@@ -1,10 +1,17 @@
 const express = require("express");
-const { getAllUsers, deleteUser } = require("../controllers/adminController");
-const { isAuthenticated, isAdmin } = require("../middlewares/authMiddleware");
+const Product = require("../models/product");
 
 const router = express.Router();
 
-router.get("/users", isAuthenticated, isAdmin, getAllUsers);
-router.delete("/users/:id", isAuthenticated, isAdmin, deleteUser);
+// Route to fetch total number of products
+router.get("/total-products", async (req, res) => {
+  try {
+    const totalProducts = await Product.countDocuments();
+    res.status(200).json({ totalProducts });
+  } catch (error) {
+    console.error("Error fetching total products:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 module.exports = router;

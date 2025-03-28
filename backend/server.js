@@ -1,38 +1,22 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
-const dotenv = require("dotenv");
-const userRoutes = require("./routes/userRoute"); 
-const { pool } = require("./config/db");
-
-// Load environment variables
-dotenv.config();
+const productRoutes = require("./routes/productRoutes");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// Middleware
+// ✅ Middleware
+app.use(express.json());
 app.use(cors());
-app.use(express.json()); // Parses incoming JSON requests
 
-// Test Database Connection
-pool.getConnection((err, connection) => {
-    if (err) {
-        console.error("❌ Database connection failed:", err.message);
-        return;
-    }
-    console.log("✅ Connected to MySQL Database!");
-    connection.release();
-});
+// ✅ Connect product routes
+app.use("/api/products", productRoutes); // Ensure this is correct
 
-// Routes
-app.use("/api/users", userRoutes);
+// ✅ Database Connection
+mongoose.connect("mongodb://localhost:27017/sample_mflix", {
 
-// Default route
-app.get("/", (req, res) => {
-    res.send("Welcome to the Flipkart Clone API! 🚀");
-});
+}).then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+const PORT = 5000;
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
