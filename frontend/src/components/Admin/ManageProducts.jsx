@@ -15,14 +15,13 @@ const ManageProducts = () => {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [stockFilter, setStockFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 5; // Pagination limit
+  const productsPerPage = 5; // Products per page
 
   // ✅ Fetch products from backend
   const fetchProducts = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/products");
-      // Access the 'products' field inside the response
-      const productsData = response.data.products; // Assuming the 'products' field holds the array
+      const productsData = response.data.products; // Assuming products array is returned
       if (Array.isArray(productsData)) {
         setProducts(productsData);
         setFilteredProducts(productsData); // Initialize filtered data
@@ -33,11 +32,10 @@ const ManageProducts = () => {
       console.error("Error fetching products:", error);
     }
   };
-  
 
-  // useEffect(() => {
-  //   fetchProducts();
-  // }, []);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   // ✅ Handle form input change
   const handleChange = (e) => {
@@ -53,7 +51,7 @@ const ManageProducts = () => {
       } else {
         await axios.post("http://localhost:5000/api/products/add", formData);
       }
-      fetchProducts(); // Fetch the updated product list after adding/updating
+      fetchProducts(); // Fetch updated list
       setFormData({ name: "", price: "", stock: "", category: "" });
       setEditingProduct(null);
     } catch (error) {
@@ -119,12 +117,11 @@ const ManageProducts = () => {
   }, [searchTerm, categoryFilter, stockFilter, products]);
 
   // ✅ Pagination Logic
+  // ✅ Ensure the total pages are correctly calculated
+const totalPages = Math.ceil(filteredProducts.length / productsPerPage); // Avoid zero pages issue
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = Array.isArray(filteredProducts)
-    ? filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct)
-    : []; // Ensure it's always an array
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -182,9 +179,9 @@ const ManageProducts = () => {
         </tbody>
       </table>
 
-      {/* ✅ Pagination */}
+      {/* ✅ Dynamic Pagination */}
       <div className="mt-4">
-        {Array.from({ length: totalPages }).map((_, i) => (
+        {Array.from({ length: totalPages }, (_, i) => (
           <button key={i} onClick={() => setCurrentPage(i + 1)} className={`px-3 py-1 mx-1 ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-300"}`}>
             {i + 1}
           </button>
