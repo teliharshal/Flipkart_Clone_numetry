@@ -1,17 +1,16 @@
 const express = require("express");
+const multer = require("multer");
 const router = express.Router();
-const { 
-  addProduct, 
-  updateProduct, 
-  deleteProduct, 
-  getProductAnalytics,
-  getAllProducts // ✅ Ensure this function is imported
-} = require("../controllers/productController");
+const productController = require("../controllers/productController");
 
-router.post("/add", addProduct);
-router.put("/update/:id", updateProduct);
-router.delete("/delete/:id", deleteProduct);
-router.get("/analytics", getProductAnalytics);
-router.get("/", getAllProducts); // ✅ Add route to fetch all products
+// Setup Multer for CSV Upload
+const upload = multer({ dest: "uploads/" });
+
+router.post("/add", productController.addProduct);
+router.put("/update/:id", productController.updateProduct);
+router.delete("/delete/:id", productController.deleteProduct);
+router.get("/", productController.getAllProducts);
+router.get("/analytics", productController.getProductAnalytics);
+router.post("/import", upload.single("file"), productController.importProducts);
 
 module.exports = router;

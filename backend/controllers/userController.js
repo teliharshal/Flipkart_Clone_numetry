@@ -1,50 +1,65 @@
-const { pool } = require("../config/db");
+const User = require("../models/user");
 
-// 📌 Fetch all users
-exports.getAllUsers = (req, res) => {
-    pool.query("SELECT * FROM users", (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
-    });
+// Get all users
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching users", error });
+  }
 };
 
-// 📌 Add a new user
-exports.addUser = (req, res) => {
+// Add a new user
+exports.addUser = async (req, res) => {
+  try {
     const { name, email, role } = req.body;
-    
-    if (!name || !email || !role) {
-        return res.status(400).json({ error: "All fields are required" });
+
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already exists" });
     }
 
-    pool.query("INSERT INTO users (name, email, role) VALUES (?, ?, ?)", 
-        [name, email, role], 
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "User added successfully", id: result.insertId });
-        }
-    );
+    const newUser = new User({ name, email, role });
+    await newUser.save();
+
+    res.status(201).json({ message: "User added successfully", newUser });
+  } catch (error) {
+    res.status(500).json({ message: "Error adding user", error });
+  }
 };
 
-// 📌 Update user details
-exports.updateUser = (req, res) => {
+// Edit user
+exports.updateUser = async (req, res) => {
+    try {
+      // Convert ID to ObjectId
+      const userId = new mongoose.Types.ObjectId(req.params.id);
+  
+      const updatedUser = await User.findByIdAndUpdate(userId, req.body, { new: true });
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      res.json(updatedUser);
+    } catch (error) {
+      res.status(500).json({ message: "Error updating user", error });
+    }
+  };
+
+// Delete user
+exports.deleteUser = async (req, res) => {
+  try {
     const { id } = req.params;
-    const { name, email, role } = req.body;
 
-    pool.query("UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?", 
-        [name, email, role, id], 
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "User updated successfully" });
-        }
-    );
-};
+    const deletedUser = await User.findByIdAndDelete(id);
+    if (!deletedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-// 📌 Delete a user
-exports.deleteUser = (req, res) => {
-    const { id } = req.params;
-
-    pool.query("DELETE FROM users WHERE id = ?", [id], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "User deleted successfully" });
-    });
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting user", error });
+  }
 };

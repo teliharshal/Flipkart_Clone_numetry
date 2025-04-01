@@ -1,145 +1,140 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid"; // Import icons from Heroicons
 
 const ManageUsers = () => {
-    const [users, setUsers] = useState([]);
-    const [formData, setFormData] = useState({ name: "", email: "", role: "user" });
-    const [editingUserId, setEditingUserId] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [editUser, setEditUser] = useState(null);
+  const [newUser, setNewUser] = useState({ name: "", email: "", role: "user" });
 
-    useEffect(() => {
+  // Fetch users from backend
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/v1/admin/users");
+      setUsers(response.data.users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  // Add new user
+  const handleAddUser = async () => {
+    if (!newUser.name || !newUser.email) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    try {
+      await axios.post("http://localhost:5000/api/v1/admin/users", newUser);
+      setNewUser({ name: "", email: "", role: "user" });
+      fetchUsers();
+    } catch (error) {
+      console.error("Error adding user:", error);
+    }
+  };
+
+  // Delete user
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      try {
+        await axios.delete(`http://localhost:5000/api/v1/admin/users/${id}`);
         fetchUsers();
-    }, []);
+      } catch (error) {
+        console.error("Error deleting user:", error);
+      }
+    }
+  };
 
-    const fetchUsers = async () => {
-        try {
-            const res = await axios.get("http://localhost:5000/api/users");
-            setUsers(res.data);
-        } catch (error) {
-            console.error("Error fetching users:", error);
-        }
-    };
+  // Edit user
+  const handleEdit = (user) => {
+    setEditUser(user);
+  };
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+  // Save edited user
+  const handleSave = async () => {
+    try {
+      await axios.put(`http://localhost:5000/api/v1/admin/users/${editUser._id}`, editUser);
+      setEditUser(null);
+      fetchUsers();
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            let response;
-            if (editingUserId) {
-                response = await axios.put(`http://localhost:5000/api/users/${editingUserId}`, formData);
-            } else {
-                response = await axios.post("http://localhost:5000/api/users", formData);
-            }
-    
-            // Update the users list without fetching again
-            const newUser = { id: response.data.id, ...formData };
-            setUsers(editingUserId ? users.map(user => (user.id === editingUserId ? newUser : user)) : [...users, newUser]);
-    
-            setFormData({ name: "", email: "", role: "user" });
-            setEditingUserId(null);
-        } catch (error) {
-            console.error("Error saving user:", error);
-        }
-    };
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h2 className="text-2xl font-semibold mb-4">Manage Users</h2>
 
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:5000/api/users/${id}`);
-            fetchUsers();
-        } catch (error) {
-            console.error("Error deleting user:", error);
-        }
-    };
+      {/* Add User Form */}
+      <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+        <h3 className="text-xl font-semibold mb-2">Add New User</h3>
+        <input type="text" placeholder="Name" className="border p-2 w-full mb-2"
+          value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} />
+        <input type="email" placeholder="Email" className="border p-2 w-full mb-2"
+          value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} />
+        <select className="border p-2 w-full mb-2"
+          value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}>
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button className="bg-green-500 text-white px-4 py-2 w-full" onClick={handleAddUser}>
+          Add User
+        </button>
+      </div>
 
-    const handleEdit = (user) => {
-        setFormData({ name: user.name, email: user.email, role: user.role });
-        setEditingUserId(user.id);
-    };
+      {/* User List */}
+      <table className="min-w-full bg-white border border-gray-200">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="border px-4 py-2">Name</th>
+            <th className="border px-4 py-2">Email</th>
+            <th className="border px-4 py-2">Role</th>
+            <th className="border px-4 py-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.length > 0 ? (
+            users.map((user) => (
+              <tr key={user._id} className="text-center">
+                <td className="border px-4 py-2">{user.name}</td>
+                <td className="border px-4 py-2">{user.email}</td>
+                <td className="border px-4 py-2">{user.role}</td>
+                <td className="border px-4 py-2">
+                  <button className="bg-yellow-500 text-white px-2 py-1 mr-2" onClick={() => handleEdit(user)}>Edit</button>
+                  <button className="bg-red-500 text-white px-2 py-1" onClick={() => handleDelete(user._id)}>Delete</button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4" className="text-center py-4 text-gray-600">No users found.</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
-    return (
-        <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-[80px]">   
-            <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">User Management</h2>
-
-            {/* Add / Edit User Form */}
-            <form onSubmit={handleSubmit} className="mb-6 space-y-4">
-                <div className="flex flex-col md:flex-row gap-4">
-                    <input
-                        type="text"
-                        name="name"
-                        placeholder="Name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        required
-                    />
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        required
-                    />
-                    <select
-                        name="role"
-                        value={formData.role}
-                        onChange={handleChange}
-                        className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    >
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
-                >
-                    {editingUserId ? "Update User" : "Add User"}
-                </button>
-            </form>
-
-            {/* User List Table */}
-            <div className="overflow-x-auto">
-                <table className="w-full bg-white shadow-md rounded-lg">
-                    <thead className="bg-blue-500 text-white">
-                        <tr>
-                            <th className="p-3 text-left">Name</th>
-                            <th className="p-3 text-left">Email</th>
-                            <th className="p-3 text-left">Role</th>
-                            <th className="p-3 text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map((user, index) => (
-                            <tr key={user.id} className={`border-b ${index % 2 === 0 ? "bg-gray-100" : "bg-white"}`}>
-                                <td className="p-3">{user.name}</td>
-                                <td className="p-3">{user.email}</td>
-                                <td className="p-3">{user.role}</td>
-                                <td className="p-3 flex justify-center gap-4">
-                                    <button
-                                        onClick={() => handleEdit(user)}
-                                        className="text-green-500 hover:text-green-700"
-                                    >
-                                        <PencilIcon className="h-5 w-5" />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(user.id)}
-                                        className="text-red-500 hover:text-red-700"
-                                    >
-                                        <TrashIcon className="h-5 w-5" />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+      {/* Edit User Form */}
+      {editUser && (
+        <div className="bg-white p-4 rounded-lg shadow-md mt-4">
+          <h3 className="text-xl font-semibold mb-4">Edit User</h3>
+          <input type="text" value={editUser.name} onChange={(e) => setEditUser({ ...editUser, name: e.target.value })}
+            className="border p-2 w-full mb-2" placeholder="Name" />
+          <input type="email" value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
+            className="border p-2 w-full mb-2" placeholder="Email" />
+          <select value={editUser.role} onChange={(e) => setEditUser({ ...editUser, role: e.target.value })}
+            className="border p-2 w-full mb-2">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+          <button className="bg-blue-500 text-white px-4 py-2 mr-2" onClick={handleSave}>Save</button>
+          <button className="bg-gray-400 text-white px-4 py-2" onClick={() => setEditUser(null)}>Cancel</button>
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default ManageUsers;

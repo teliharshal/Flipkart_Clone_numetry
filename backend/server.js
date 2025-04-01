@@ -1,7 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const productRoutes = require("./routes/productRoutes");
+
+const productRoutes = require("./routes/productRoutes"); // Product routes
+const userRoutes = require("./routes/userRoute"); // User routes
 
 const app = express();
 
@@ -9,13 +11,15 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// ✅ Connect product routes
-app.use("/api/products", productRoutes); // Ensure this is correct
+// ✅ Connect routes
+app.use("/api/products", productRoutes); // Product Management
+app.use("/api/users", userRoutes); // User Management
 
 // ✅ Database Connection
-mongoose.connect("mongodb://localhost:27017/sample_mflix", {
-
-}).then(() => console.log("✅ MongoDB Connected"))
+mongoose
+  .connect("mongodb://localhost:27017/sample_mflix", {
+  })
+  .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
 const PORT = 5000;
