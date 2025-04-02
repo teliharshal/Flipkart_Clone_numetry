@@ -1,0 +1,6 @@
+name,price,stock,category,imageUrl
+Product 1,100,10,Electronics,https://via.placeholder.com/150
+Product 2,200,5,Fashion,https://via.placeholder.com/150
+Product 3,150,8,Home & Kitchen,https://via.placeholder.com/150
+Product 4,250,2,Books,https://via.placeholder.com/150
+Product 5,300,0,Sports,https://via.placeholder.com/150

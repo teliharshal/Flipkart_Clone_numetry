@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
+
 import axios from "axios";
 import {
   Chart as ChartJS,
@@ -15,7 +16,17 @@ import {
 } from "chart.js";
 
 // Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -49,6 +60,44 @@ const AdminDashboard = () => {
     { name: "Sports", sales: 20 },
   ]);
 
+  // New: Sales Trend Data (Daily, Weekly, Monthly)
+  const [salesTrend, setSalesTrend] = useState([
+    { day: "Monday", sales: 2000 },
+    { day: "Tuesday", sales: 3000 },
+    { day: "Wednesday", sales: 2500 },
+    { day: "Thursday", sales: 4000 },
+    { day: "Friday", sales: 3500 },
+  ]);
+
+  // New: Top-Selling & Least-Performing Products
+  const [topSelling, setTopSelling] = useState([
+    { name: "Laptop", sales: 150 },
+    { name: "Smartphone", sales: 130 },
+    { name: "Headphones", sales: 110 },
+  ]);
+
+  const [leastPerforming, setLeastPerforming] = useState([
+    { name: "Smartwatch", sales: 15 },
+    { name: "Tablet", sales: 10 },
+    { name: "VR Headset", sales: 5 },
+  ]);
+
+  // New: Simulated WebSocket Order Status Updates
+  const [liveOrderStatus, setLiveOrderStatus] = useState([]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const statuses = ["Processing", "Shipped", "Delivered"];
+      const newOrder = {
+        id: Math.floor(Math.random() * 1000),
+        status: statuses[Math.floor(Math.random() * statuses.length)],
+      };
+      setLiveOrderStatus((prev) => [newOrder, ...prev.slice(0, 4)]); // Keep only the last 5 updates
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <main className="flex-1 p-8 bg-gray-100 min-h-screen mt-[65px]">
       {/* Header */}
@@ -69,7 +118,9 @@ const AdminDashboard = () => {
           { label: "Total Products", value: stats.totalProducts, icon: "📦" },
         ].map((stat, index) => (
           <div key={index} className="bg-white p-5 shadow-md rounded-lg text-center">
-            <h2 className="text-2xl font-bold text-gray-800">{stat.icon} {stat.value}</h2>
+            <h2 className="text-2xl font-bold text-gray-800">
+              {stat.icon} {stat.value}
+            </h2>
             <p className="text-gray-600">{stat.label}</p>
           </div>
         ))}
@@ -92,8 +143,8 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+     {/* Charts Section */}
+     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
         {/* Bar Chart: Monthly Orders */}
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-xl font-semibold mb-4">Monthly Orders</h3>
@@ -143,6 +194,68 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Charts Section 2 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+    {/* Line Chart: Sales Trend */}
+    <div className="bg-white p-4 rounded-lg shadow-md h-52">
+    <h3 className="text-xl font-semibold mb-2">Sales Trend</h3>
+    <div className="h-[180px]">
+      <Line
+        data={{
+          labels: salesTrend.map((data) => data.day),
+          datasets: [
+            {
+              label: "Sales",
+              data: salesTrend.map((data) => data.sales),
+              borderColor: "green",
+              tension: 0.3,
+            },
+          ],
+        }}
+        options={{
+          responsive: true,
+          maintainAspectRatio: false,
+        }}
+        height={200}
+      />
+    </div>
+  </div>
+
+  {/* Top-Selling Products */}
+  <div className="bg-white p-4 rounded-lg shadow-md h-52 overflow-y-auto max-h-48">
+    <h3 className="text-xl font-semibold mb-2">Top-Selling Products</h3>
+    <ul>
+      {topSelling.map((item, index) => (
+        <li key={index} className="mb-1">
+          {item.name}: {item.sales} units
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  {/* Least-Performing Products */}
+  <div className="bg-white p-4 rounded-lg shadow-md h-52 overflow-y-auto max-h-48">
+    <h3 className="text-xl font-semibold mb-2">Least-Performing Products</h3>
+    <ul>
+      {leastPerforming.map((item, index) => (
+        <li key={index} className="mb-1">
+          {item.name}: {item.sales} units
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+{/* Real-Time Order Status Updates */}
+<div className="bg-white p-4 rounded-lg shadow-md mt-8 max-h-48 overflow-y-auto">
+  <h3 className="text-xl font-semibold mb-2">Live Order Updates</h3>
+  {liveOrderStatus.map((order, index) => (
+    <p key={index} className="text-gray-700">
+      Order #{order.id} - {order.status}
+    </p>
+  ))}
+</div>
     </main>
   );
 };

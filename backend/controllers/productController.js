@@ -1,16 +1,22 @@
 const Product = require("../models/product");
 const csv = require('csv-parser');
 const fs = require("fs");
+const multer = require("multer");
 
-// ✅ Add a product
+// ✅ Configure Multer for Image Upload
+const upload = multer({ dest: "uploads/" });
+
+// ✅ Add a product (with Image)
 exports.addProduct = async (req, res) => {
     try {
-        const { name, price, stock, category } = req.body;
+        const { name, price, stock, category, imageUrl } = req.body; // Accept imageUrl from body
+        const image = req.file ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}` : imageUrl;
+
         if (!name || !price || !stock || !category) {
             return res.status(400).json({ message: "All fields are required." });
         }
 
-        const newProduct = new Product({ name, price, stock, category });
+        const newProduct = new Product({ name, price, stock, category, image });
         await newProduct.save();
         res.status(201).json({ message: "✅ Product added successfully", product: newProduct });
     } catch (error) {
@@ -19,38 +25,30 @@ exports.addProduct = async (req, res) => {
     }
 };
 
+
 // ✅ Bulk Product Import from CSV
 exports.importProducts = (req, res) => {
     const results = [];
-    const file = req.file;  // Assuming you're using Multer for file upload
-  
+    const file = req.file;
+
     if (!file) {
         return res.status(400).send('No file uploaded');
     }
 
     fs.createReadStream(file.path)
         .pipe(csv())
-        .on('data', (data) => results.push(data)) // Collect the CSV rows
+        .on('data', (data) => results.push(data))
         .on('end', async () => {
             try {
-                // Process the data after parsing
-                // Assuming you have a function to save these products to the database
-                await saveProductsToDatabase(results); // Make sure this function is defined
-
-                // Only send a response once the CSV data is processed
-                res.status(200).json({
-                    message: 'Products imported successfully',
-                    importedProducts: results.length,
-                });
+                await saveProductsToDatabase(results);
+                res.status(200).json({ message: 'Products imported successfully', importedProducts: results.length });
             } catch (error) {
-                // If any error occurs during processing or saving to DB
-                console.error('Error processing CSV data:', error);
+                console.error('❌ Error processing CSV:', error);
                 res.status(500).send('Error importing products');
             }
         })
         .on('error', (error) => {
-            // Handle file parsing errors
-            console.error('Error reading CSV file:', error);
+            console.error('❌ Error reading CSV:', error);
             res.status(500).send('Error reading CSV file');
         });
 };
@@ -59,27 +57,35 @@ exports.importProducts = (req, res) => {
 const saveProductsToDatabase = async (products) => {
     try {
         for (let product of products) {
-            // Example: Insert each product into the 'products' collection in MongoDB
             await Product.create({
                 name: product.name,
                 price: product.price,
                 stock: product.stock,
                 category: product.category,
-                // Add other product fields here
+                image: product.image|| null, // Support image URLs from CSV
             });
         }
-        console.log('Products saved to database.');
+        console.log('✅ Products saved to database.');
     } catch (error) {
-        console.error('Error saving products to database:', error);
-        throw new Error('Database saving error');
+        console.error('❌ Error saving products:', error);
+        throw new Error('Database error');
     }
 };
 
-// ✅ Update a product
+// ✅ Update a product (with Image)
 exports.updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const updatedProduct = await Product.findByIdAndUpdate(id, req.body, { new: true });
+        const { imageUrl } = req.body; // Accept imageUrl from body
+        const updatedData = req.body;
+
+        if (req.file) {
+            updatedData.image = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+        } else if (imageUrl) {
+            updatedData.image = imageUrl;
+        }        
+
+        const updatedProduct = await Product.findByIdAndUpdate(id, updatedData, { new: true });
 
         if (!updatedProduct) {
             return res.status(404).json({ message: "Product not found" });
@@ -92,7 +98,8 @@ exports.updateProduct = async (req, res) => {
     }
 };
 
-// ✅ Delete a product
+
+// ✅ Delete a single product
 exports.deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
@@ -105,6 +112,28 @@ exports.deleteProduct = async (req, res) => {
         res.status(200).json({ message: "✅ Product deleted" });
     } catch (error) {
         console.error("❌ Error deleting product:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+// ✅ Delete multiple selected products
+exports.deleteMultipleProducts = async (req, res) => {
+    try {
+        const { ids } = req.body;
+
+        if (!ids || ids.length === 0) {
+            return res.status(400).json({ message: "No product IDs provided" });
+        }
+
+        const deletedProducts = await Product.deleteMany({ _id: { $in: ids } });
+
+        if (deletedProducts.deletedCount === 0) {
+            return res.status(404).json({ message: "No products found to delete" });
+        }
+
+        res.status(200).json({ message: `✅ Deleted ${deletedProducts.deletedCount} products` });
+    } catch (error) {
+        console.error("❌ Error deleting products:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
