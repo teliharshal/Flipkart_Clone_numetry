@@ -9,14 +9,22 @@ const upload = multer({ dest: "uploads/" });
 // ✅ Add a product (with Image)
 exports.addProduct = async (req, res) => {
     try {
-        const { name, price, stock, category, imageUrl } = req.body; // Accept imageUrl from body
+        const { name, price, stock, category, imageUrl } = req.body;
         const image = req.file ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}` : imageUrl;
 
         if (!name || !price || !stock || !category) {
             return res.status(400).json({ message: "All fields are required." });
         }
 
-        const newProduct = new Product({ name, price, stock, category, image });
+        const newProduct = new Product({
+            name,
+            price,
+            stock,
+            category,
+            image,
+            createdAt: new Date()  // ✅ Explicitly adding date (optional)
+        });
+
         await newProduct.save();
         res.status(201).json({ message: "✅ Product added successfully", product: newProduct });
     } catch (error) {
@@ -24,6 +32,7 @@ exports.addProduct = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
 
 
 // ✅ Bulk Product Import from CSV
@@ -62,7 +71,8 @@ const saveProductsToDatabase = async (products) => {
                 price: product.price,
                 stock: product.stock,
                 category: product.category,
-                image: product.image|| null, // Support image URLs from CSV
+                image: product.image || null,
+                createdAt: product.createdAt ? new Date(product.createdAt) : new Date()  // ✅ Handle date from CSV or add current date
             });
         }
         console.log('✅ Products saved to database.');
@@ -71,6 +81,7 @@ const saveProductsToDatabase = async (products) => {
         throw new Error('Database error');
     }
 };
+
 
 // ✅ Update a product (with Image)
 exports.updateProduct = async (req, res) => {
@@ -163,7 +174,7 @@ exports.getProductAnalytics = async (req, res) => {
 // ✅ Fetch all products with Search, Filters, and Pagination
 exports.getAllProducts = async (req, res) => {
     try {
-        const { search, category, stock, page = 1, limit = 10 } = req.query;
+        const { search, category, stock, page = 1, limit = 10, sortBy = "createdAt", order = "desc" } = req.query;
         const query = {};
 
         if (search) query.name = { $regex: search, $options: "i" };
@@ -171,7 +182,8 @@ exports.getAllProducts = async (req, res) => {
         if (stock) query.stock = { $gte: parseInt(stock) };
 
         const products = await Product.find(query)
-            .limit(limit)
+            .sort({ [sortBy]: order === "asc" ? 1 : -1 })  // ✅ Sorting by date
+            .limit(parseInt(limit))
             .skip((page - 1) * limit);
 
         const totalProducts = await Product.countDocuments(query);

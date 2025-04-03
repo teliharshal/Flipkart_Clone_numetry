@@ -1,8 +1,9 @@
 const colors = require('tailwindcss/colors')
 
 module.exports = {
+  darkMode: "class", // Enable dark mode support
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
+   "./index.html","./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     screens: {
@@ -15,7 +16,6 @@ module.exports = {
     colors: {
       transparent: 'transparent',
       current: 'currentColor',
-
       black: colors.black,
       white: colors.white,
       gray: colors.gray,
@@ -816,4 +816,8 @@ module.exports = {
     },
   },
   plugins: [],
+  future: {
+    removeDeprecatedGapUtilities: true,
+    purgeLayersByDefault: true,
+  },
 }

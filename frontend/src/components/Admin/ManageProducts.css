@@ -1,0 +1,41 @@
+/* Light Mode (Default) */
+body {
+    background-color: white;
+    color: black;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .container {
+    background-color: white;
+    color: black;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  /* Dark Mode (Apply to Entire Page) */
+  .dark-mode {
+    background-color: #121212;
+    color: white;
+  }
+  
+  .dark-mode .container {
+    background-color: #121212;
+    color: white;
+  }
+  
+  .dark-mode table {
+    background-color: #1e1e1e;
+    color: white;
+    border: 1px solid white;
+  }
+  
+  .dark-mode th,
+  .dark-mode td {
+    border: 1px solid #555;
+  }
+  
+  .dark-mode button {
+    background-color: #333;
+    color: white;
+    border: 1px solid white;
+  }
+  

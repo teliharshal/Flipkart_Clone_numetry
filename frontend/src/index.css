@@ -6,7 +6,8 @@
 body {
     background-color: #f1f3f6;
     font-family: 'Roboto', sans-serif;
-   
+    color: black;
+    
 }
 
 /* hover navbar dropdown arrow */
@@ -24,3 +25,5 @@ body {
     background-repeat: no-repeat;
 }
 /* login signup sidebar bg image */
+
+/* Light Mode (Default) */

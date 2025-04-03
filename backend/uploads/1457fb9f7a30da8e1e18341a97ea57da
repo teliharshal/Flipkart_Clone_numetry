@@ -1,0 +1,8 @@
+name,price,stock,category,image,createdAt
+Wireless Headphones,59.99,20,Electronics,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCzRPEk6W5Hez30vQQ_zYdQ5Wd5Pt8hH4cVw&s,2024-05-05
+Gaming Mouse,29.99,35,Accessories,https://blaupunktaudio.in/cdn/shop/products/btw300-true-wireless-enc-earbuds-bk-blaupunkt-india-1.png?v=1710491573,2024-13-05
+Smart Watch,99.99,15,Wearable,https://suprememobiles.in/cdn/shop/files/2_9c78017c-f59c-4547-8ca7-67d518f3e3b8.png?v=1701846865,2024-03-05
+Laptop,799.99,10,Computers,https://example.com/images/laptop.jpg,2024-03-05
+Portable Speaker,49.99,25,Audio,https://example.com/images/speaker.jpg,2024-02-25
+Mechanical Keyboard,89.99,12,Accessories,https://example.com/images/keyboard.jpg,2024-01-30
+Tablet,399.99,8,Electronics,https://example.com/images/tablet.jpg,2024-03-10
