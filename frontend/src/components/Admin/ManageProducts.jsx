@@ -17,14 +17,15 @@ const ManageProducts = () => {
   const [stockFilter, setStockFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [priceSort, setPriceSort] = useState("");  // Sorting by price (asc/desc)
-const [dateSort, setDateSort] = useState("");    // Sorting by date (newest/oldest)
-const categories = ["Electronics", "Clothing", "Books", "Home & Kitchen"]; // Define categories
+  const [dateSort, setDateSort] = useState("");    // Sorting by date (newest/oldest)
+  const categories = ["Electronics", "Clothing", "Books", "Home & Kitchen"]; // Define categories
+  const [loading, setLoading] = useState(false); // ✅ Define loading state
 
 
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") === "dark"
   );
-  const productsPerPage = 5;
+  const productsPerPage = 4;
 
   // ✅ Fetch products
   const fetchProducts = async () => {
@@ -40,6 +41,7 @@ const categories = ["Electronics", "Clothing", "Books", "Home & Kitchen"]; // De
     }
   };
 
+
   // ✅ Dark mode toggle
   useEffect(() => {
     if (darkMode) {
@@ -54,14 +56,18 @@ const categories = ["Electronics", "Clothing", "Books", "Home & Kitchen"]; // De
 
   useEffect(() => {
     fetchProducts();
-    const interval = setInterval(() => fetchProducts(), 5000);
+    const interval = setInterval(() => fetchProducts(), 60000);
     return () => clearInterval(interval);
   }, []);
 
   // ✅ Handle input change
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value, // ✅ Dynamically update fields
+    });
   };
+  
 
   // ✅ Open modal for adding/editing product
   const editProduct = (product) => {
@@ -116,12 +122,14 @@ const categories = ["Electronics", "Clothing", "Books", "Home & Kitchen"]; // De
     }
   };
 
+
   // ✅ Handle product selection for multi-delete
   const toggleProductSelection = (id) => {
     setSelectedProducts((prev) =>
       prev.includes(id) ? prev.filter((productId) => productId !== id) : [...prev, id]
     );
   };
+
 
   // ✅ Bulk Product Import (CSV)
   const handleFileUpload = async (e) => {
@@ -188,6 +196,7 @@ const categories = ["Electronics", "Clothing", "Books", "Home & Kitchen"]; // De
   };
 
 
+  
   // ✅ Pagination logic
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage); // Avoid zero pages issue
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -306,14 +315,17 @@ const categories = ["Electronics", "Clothing", "Books", "Home & Kitchen"]; // De
   />
 
   {/* ✅ Image Upload Input */}
-  <input 
-    type="text" 
-    name="imageUrl" 
-    value={formData.image} 
-    onChange={handleChange} 
-    placeholder="Image URL" 
-    className="w-full p-2 mb-2 border rounded" 
-  />
+  {/* ✅ Image Upload Input (Fixed) */}
+<input 
+  type="text" 
+  name="image"  // ✅ Match this with formData.image
+  value={formData.image} 
+  onChange={handleChange} 
+  placeholder="Image URL" 
+  required 
+  className="w-full p-2 mb-2 border rounded" 
+/>
+
 
 <input 
     type="date" 
@@ -370,15 +382,30 @@ const categories = ["Electronics", "Clothing", "Books", "Home & Kitchen"]; // De
               />
             </td>
 
+      
             <td className="border p-2">
-              <LazyLoadImage
-                src={product.image || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzSOrIHIncvVwcn86Yj1lG2no3rymRPhF1AQ&s"}
-                alt={product.name}
-                className="w-16 h-16 object-cover rounded"
+  {/* ✅ Show a spinner when loading */}
+  {loading && (
+    <div className="flex justify-center items-center w-16 h-16">
+      <div className="border-4 border-gray-300 border-t-blue-500 rounded-full w-8 h-8 animate-spin"></div>
+    </div>
+  )}
+  
+  <LazyLoadImage
+    src={product.image || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzSOrIHIncvVwcn86Yj1lG2no3rymRPhF1AQ&s"}
+    alt={product.name}
+    className="w-16 h-16 object-cover rounded"
+    
+    effect="blur" // ✅ Adds blur effect while loading
+    placeholderSrc="https://via.placeholder.com/64" // ✅ Show low-res placeholder
 
-                onError={(e) => (e.target.src = "https://via.placeholder.com/64")}
-              />
-            </td>
+    onError={(e) => (e.target.src = "https://via.placeholder.com/64")} // ✅ Fallback image
+
+    beforeLoad={() => setLoading(true)} // ✅ Show spinner before image loads
+    afterLoad={() => setLoading(false)} // ✅ Hide spinner after image loads
+  />
+</td>
+
             <td className="border p-2">{product.name}</td>
             <td className="border p-2">${product.price}</td>
             <td className="border p-2">{product.stock}</td>
@@ -489,15 +516,33 @@ const categories = ["Electronics", "Clothing", "Books", "Home & Kitchen"]; // De
 )}
 
 
-
       {/* ✅ Pagination */}
-      <div className="mt-4">
+      <div className="mt-4 flex justify-center">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className={`px-3 py-1 mx-1 ${currentPage === 1 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 text-white"}`}
+        >
+          Prev
+        </button>
+
         {Array.from({ length: totalPages }, (_, i) => (
-          <button key={i} onClick={() => setCurrentPage(i + 1)} className={`px-3 py-1 mx-1 ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-300"}`}>
+          <button
+            key={i}
+            onClick={() => setCurrentPage(i + 1)}
+            className={`px-3 py-1 mx-1 ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-300"}`}
+          >
             {i + 1}
           </button>
         ))}
-        
+
+        <button
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          className={`px-3 py-1 mx-1 ${currentPage === totalPages ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 text-white"}`}
+        >
+          Next
+        </button>
       </div>
     </div>
   );

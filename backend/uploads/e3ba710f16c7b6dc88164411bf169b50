@@ -1,0 +1,11 @@
+name,price,stock,category,image,createdAt
+Wireless Headphones,59.99,20,Electronics,https://example.com/images/headphones.jpg,2024-03-20
+Gaming Mouse,29.99,35,Accessories,https://example.com/images/mouse.jpg,2024-02-15
+Smart Watch,99.99,15,Wearable,https://example.com/images/smartwatch.jpg,2024-01-10
+Laptop,799.99,10,Computers,https://example.com/images/laptop.jpg,2024-03-05
+Portable Speaker,49.99,25,Audio,https://example.com/images/speaker.jpg,2024-02-25
+Mechanical Keyboard,89.99,12,Accessories,https://example.com/images/keyboard.jpg,2024-01-30
+Tablet,399.99,8,Electronics,https://example.com/images/tablet.jpg,2024-03-10
+External Hard Drive,119.99,18,Storage,https://example.com/images/harddrive.jpg,2024-02-05
+Smartphone,699.99,7,Mobile,https://example.com/images/smartphone.jpg,2024-03-18
+Bluetooth Earbuds,39.99,30,Audio,https://example.com/images/earbuds.jpg,2024-03-12
