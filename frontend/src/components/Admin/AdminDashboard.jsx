@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 import axios from "axios";
 import {
@@ -82,8 +85,6 @@ const AdminDashboard = () => {
     { name: "VR Headset", sales: 5 },
   ]);
 
-  // New: Simulated WebSocket Order Status Updates
-  const [liveOrderStatus, setLiveOrderStatus] = useState([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -92,11 +93,66 @@ const AdminDashboard = () => {
         id: Math.floor(Math.random() * 1000),
         status: statuses[Math.floor(Math.random() * statuses.length)],
       };
-      setLiveOrderStatus((prev) => [newOrder, ...prev.slice(0, 4)]); // Keep only the last 5 updates
-    }, 3000);
-
+  
+      setLiveOrderStatus((prev) => [newOrder, ...prev.slice(0, 4)]);
+  
+      // Toast for new order
+      toast.info(`New order #${newOrder.id} - ${newOrder.status}`);
+    }, 60000); // every 5 seconds
+  
     return () => clearInterval(interval);
   }, []);
+  
+
+  useEffect(() => {
+    const checkStock = () => {
+      const lowStockProducts = [
+        { name: "Mouse", stock: 3 },
+        { name: "Keyboard", stock: 2 },
+      ];
+  
+      lowStockProducts.forEach((product) => {
+        if (product.stock < 5) {
+          toast.warn(`${product.name} stock is low (${product.stock} left)!`);
+        }
+      });
+    };
+  
+    const interval = setInterval(checkStock, 10000); // every 10s
+  
+    return () => clearInterval(interval);
+  }, []);
+  
+
+
+
+  // New: Simulated WebSocket Order Status Updates
+  const [liveOrderStatus, setLiveOrderStatus] = useState([]);
+
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const statuses = ["Processing", "Shipped", "Delivered"];
+      const newOrder = {
+        id: Math.floor(Math.random() * 1000),
+        status: statuses[Math.floor(Math.random() * statuses.length)],
+      };
+  
+      setLiveOrderStatus((prev) => [newOrder, ...prev.slice(0, 4)]);
+  
+      // ✅ Show toast inside the same scope
+      if (newOrder.status === "Delivered") {
+        toast.success(`Order #${newOrder.id} has been delivered 🎉`);
+      } else {
+        toast.info(`New order #${newOrder.id} - ${newOrder.status}`);
+      }
+  
+    }, 7000); // interval every 5s
+  
+    return () => clearInterval(interval);
+  }, []);
+  
+
 
   return (
     <main className="flex-1 p-8 bg-gray-100 min-h-screen mt-[65px]">
@@ -256,6 +312,9 @@ const AdminDashboard = () => {
     </p>
   ))}
 </div>
+
+   <ToastContainer position="top-right" autoClose={3000} />
+
     </main>
   );
 };

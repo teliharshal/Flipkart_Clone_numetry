@@ -4,6 +4,7 @@ const cors = require("cors");
 
 const productRoutes = require("./routes/productRoutes"); // Product routes
 const userRoutes = require("./routes/userRoute"); // User routes
+const orderRoute = require("./routes/orderRoute"); // Order routes
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(cors());
 // ✅ Connect routes
 app.use("/api/products", productRoutes); // Product Management
 app.use("/api/users", userRoutes); // User Management
+app.use("/api/orders", orderRoute); // Order Management
 
 // ✅ Database Connection
 mongoose
