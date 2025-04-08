@@ -58,9 +58,9 @@ const NotFound = React.lazy(() => import("./components/NotFound"));
 // 🔒 Admin Components
 const AdminDashboard = React.lazy(() => import("./components/Admin/AdminDashboard"));
 const ManageProducts = React.lazy(() => import("./components/Admin/ManageProducts"));
-const ManageOrders = React.lazy(() => import("./components/Admin/ManageOrders"));
-const AdminLogin = React.lazy(() => import("./components/Admin/AdminLogin")); // ✅ Added Admin Login
+const ManageOrders = React.lazy(() => import("./components/Admin/ManageOrders")); 
 const ManageUsers = React.lazy(() => import("./components/Admin/ManageUsers")); // ✅ Added Manage Users
+const ManageAdmin = React.lazy(()=> import("./components/Admin/ManageAdmins")); // ✅ Added Manage Admins
 
 function App() {
   const dispatch = useDispatch();
@@ -94,13 +94,14 @@ function App() {
         <Route path="/wishlist" element={<Wishlist />} />
 
         {/* 🔐 Admin Login Route */}
-        <Route path="/admin-login" element={<AdminLogin />} />  
+        {/* <Route path="/admin-login" element={<AdminLogin />} />   */}
 
         {/* 🔒 Protected Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute element={<AdminDashboard />} />} />
         <Route path="/admin/products" element={<ProtectedRoute element={<ManageProducts />} />} />
         <Route path="/admin/orders" element={<ProtectedRoute element={<ManageOrders />} />} />
         <Route path="/admin/users" element={<ProtectedRoute element={<ManageUsers />} />} />
+        <Route path="/admin/admins" element={<ProtectedRoute element={<ManageAdmin />} />} />
       
         {/* 404 Page */}
         <Route path="*" element={<NotFound />} />

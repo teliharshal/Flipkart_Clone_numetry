@@ -294,6 +294,7 @@ const ManageProducts = () => {
         </tbody>
       </table>
 
+
  
  {/* ✅ Improved Product Editing Modal */}
   {showModal && (
