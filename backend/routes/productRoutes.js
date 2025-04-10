@@ -15,4 +15,14 @@ router.get("/", productController.getAllProducts);  // Fetch products with searc
 router.get("/analytics", productController.getProductAnalytics);  // Get analytics
 router.post("/import", upload.single("file"), productController.importProducts);  // Bulk import from CSV
 
+router.post("/api/generate-description", (req, res) => {
+    const { title, category, keywords } = req.body;
+  
+    // Dummy description logic
+    const description = `Introducing the ${title}, a premium choice in the ${category} category. Features include: ${keywords}. Designed to exceed expectations and deliver outstanding performance.`;
+  
+    res.json({ description });
+  });
+  
+
 module.exports = router;

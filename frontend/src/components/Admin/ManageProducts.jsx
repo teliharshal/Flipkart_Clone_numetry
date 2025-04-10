@@ -7,7 +7,7 @@ import "./ManageProducts.css"; // Your custom styles
 const ManageProducts = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [formData, setFormData] = useState({ name: "", price: "", stock: "", category: "", image: "", createdAt: "" });
+  const [formData, setFormData] = useState({ name: "", price: "", stock: "", category: "", image: "", createdAt: "" , description: '' });
   const [editingProduct, setEditingProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -18,6 +18,15 @@ const ManageProducts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(localStorage.getItem("theme") === "dark");
+  const [product, setProduct] = useState({ name: "", category: "" });
+  const [description, setDescription] = useState('');
+  // const [showModal, setShowModal] = useState(false);
+const [aiTitle, setAiTitle] = useState("");
+const [aiCategory, setAiCategory] = useState("");
+const [aiKeywords, setAiKeywords] = useState("");
+const [aiLoading, setAiLoading] = useState(false);
+const [aiGeneratedDescription, setAiGeneratedDescription] = useState("");
+
 
   const productsPerPage = 4;
 
@@ -102,6 +111,30 @@ const ManageProducts = () => {
       prev.includes(id) ? prev.filter((productId) => productId !== id) : [...prev, id]
     );
   };
+
+  const handleAIDescription = async () => {
+    try {
+      const res = await fetch("/api/generate-description", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productName: product.name, category: product.category }),
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok) {
+        setProduct({ ...product, description: data.description });
+      } else {
+        alert("Failed to generate description.");
+      }
+    } catch (error) {
+      console.error("AI Description Error:", error);
+      alert("Something went wrong while generating description.");
+    }
+  };
+  
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
@@ -233,6 +266,25 @@ const ManageProducts = () => {
         <input type="number" name="price" value={formData.price} onChange={handleChange} placeholder="Price" required className="w-full p-2 mb-2 border rounded" />
         <input type="number" name="stock" value={formData.stock} onChange={handleChange} placeholder="Stock" required className="w-full p-2 mb-2 border rounded" />
         <input type="text" name="category" value={formData.category} onChange={handleChange} placeholder="Category" required className="w-full p-2 mb-2 border rounded" />
+       
+        <div className="mb-4 relative">
+  <label htmlFor="description">Product Description</label>
+  <textarea
+    id="description"
+    name="description"
+    className="w-full border p-2"
+    value={description}
+    onChange={(e) => setDescription(e.target.value)}
+  />
+  <button
+    type="button"
+    onClick={() => setShowModal(true)}
+    className="absolute right-2 top-2 bg-blue-500 text-white px-2 py-1 rounded"
+  >
+    Generate using AI
+  </button>
+</div>
+
         <input type="text" name="image" value={formData.image} onChange={handleChange} placeholder="Image URL" required className="w-full p-2 mb-2 border rounded" />
         <input type="date" name="createdAt" value={formData.createdAt} onChange={handleChange} required className="w-full p-2 mb-2 border rounded" />
         <button type="submit" className="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600">
@@ -295,91 +347,104 @@ const ManageProducts = () => {
       </table>
 
 
- 
- {/* ✅ Improved Product Editing Modal */}
+          
+
   {showModal && (
-  <div
-    className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center transition-opacity duration-300"
-    onClick={() => setShowModal(false)} // Close on outside click
-  >
-    <div
-      className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96 shadow-lg transform transition-all scale-95"
-      onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
-    >
-      {/* Header */}
-      <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-        {editingProduct ? "Edit Product" : "Add Product"}
-      </h2>
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+    <div className="bg-white w-full max-w-lg p-6 rounded shadow-lg relative">
+      <button
+        onClick={() => setShowModal(false)}
+        className="absolute top-2 right-2 text-gray-600 hover:text-red-500"
+      >
+        ✕
+      </button>
+      <h2 className="text-xl font-semibold mb-4">AI Description Generator</h2>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="mb-4">
+        <label className="block mb-1">Product Title</label>
         <input
           type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Product Name"
-          required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          className="w-full border p-2 rounded"
+          value={aiTitle}
+          onChange={(e) => setAiTitle(e.target.value)}
+          placeholder="e.g. Wireless Earbuds"
         />
-        <input
-          type="number"
-          name="price"
-          value={formData.price}
-          onChange={handleChange}
-          placeholder="Price"
-          required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        />
-        <input
-          type="number"
-          name="stock"
-          value={formData.stock}
-          onChange={handleChange}
-          placeholder="Stock"
-          required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        />
-        <input
-          type="text"
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          placeholder="Category"
-          required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        />
-        <input
-          type="text"
-          name="image"
-          value={formData.image}
-          onChange={handleChange}
-          placeholder="Image URL"
-          required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        />
+      </div>
 
-        {/* Buttons */}
-        <div className="flex justify-between mt-4">
+      <div className="mb-4">
+        <label className="block mb-1">Category</label>
+        <input
+          type="text"
+          className="w-full border p-2 rounded"
+          value={aiCategory}
+          onChange={(e) => setAiCategory(e.target.value)}
+          placeholder="e.g. Electronics"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block mb-1">Keywords / Highlights (comma-separated)</label>
+        <input
+          type="text"
+          className="w-full border p-2 rounded"
+          value={aiKeywords}
+          onChange={(e) => setAiKeywords(e.target.value)}
+          placeholder="e.g. Bluetooth 5.0, Noise Cancelling, Long Battery"
+        />
+      </div>
+
+      <button
+        onClick={async () => {
+          setAiLoading(true);
+          // 🔥 Trigger AI API here
+          const response = await fetch("http://localhost:5000/api/generate-description", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: aiTitle,
+              category: aiCategory,
+              keywords: aiKeywords,
+            }),
+          });
+
+          const data = await response.json();
+          setAiGeneratedDescription(data.description);
+          setAiLoading(false);
+        }}
+        disabled={aiLoading}
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+      >
+        {aiLoading ? "Generating..." : "Generate"}
+      </button>
+
+      {aiGeneratedDescription && (
+        <div className="mt-4">
+          <label className="block font-semibold mb-1">Generated Description:</label>
+          <textarea
+            className="w-full border p-2 rounded"
+            rows="4"
+            value={aiGeneratedDescription}
+            readOnly
+          />
           <button
-            type="button"
-            onClick={() => setShowModal(false)}
-            className="bg-gray-500 text-white px-5 py-2 rounded-lg hover:bg-gray-600 transition"
+            onClick={() => {
+              setDescription(aiGeneratedDescription);
+              setShowModal(false);
+              setAiGeneratedDescription("");
+              setAiTitle("");
+              setAiCategory("");
+              setAiKeywords("");
+            }}
+            className="mt-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
           >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-5 py-2 rounded-lg hover:bg-blue-600 transition"
-          >
-            {editingProduct ? "Update" : "Add"}
+            Use this Description
           </button>
         </div>
-      </form>
+      )}
     </div>
   </div>
 )}
-
+ 
 
       {/* Pagination */}
       <div className="mt-4 flex justify-center">

@@ -9,7 +9,7 @@ const upload = multer({ dest: "uploads/" });
 // ✅ Add a product (with Image)
 exports.addProduct = async (req, res) => {
     try {
-        const { name, price, stock, category, imageUrl } = req.body;
+        const { name, price, stock, category, imageUrl ,description,aiGeneratedPrompt} = req.body;
         const image = req.file ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}` : imageUrl;
 
         if (!name || !price || !stock || !category) {
@@ -22,7 +22,12 @@ exports.addProduct = async (req, res) => {
             stock,
             category,
             image,
-            createdAt: new Date()  // ✅ Explicitly adding date (optional)
+            description,
+            createdAt: new Date(),
+            aiGenerated: aiGeneratedPrompt ? {
+                prompt: aiGeneratedPrompt.prompt,
+                description: aiGeneratedPrompt.description
+              } : null // ✅ Explicitly adding date (optional)
         });
 
         await newProduct.save();
@@ -194,3 +199,4 @@ exports.getAllProducts = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+

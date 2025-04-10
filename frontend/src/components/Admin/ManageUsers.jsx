@@ -13,7 +13,7 @@ const ManageUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/v1/admin/users");
+      const response = await axios.get("http://localhost:5000/api/admin/users");
       setUsers(response.data.users);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -28,7 +28,7 @@ const ManageUsers = () => {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/v1/admin/users", newUser);
+      await axios.post("http://localhost:5000/api/admin/users", newUser);
       setNewUser({ name: "", email: "", role: "user" });
       fetchUsers();
     } catch (error) {
@@ -40,7 +40,7 @@ const ManageUsers = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/v1/admin/users/${id}`);
+        await axios.delete(`http://localhost:5000/api/admin/users/${id}`);
         fetchUsers();
       } catch (error) {
         console.error("Error deleting user:", error);
@@ -56,7 +56,7 @@ const ManageUsers = () => {
   // Save edited user
   const handleSave = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/v1/admin/users/${editUser._id}`, editUser);
+      await axios.put(`http://localhost:5000/api/admin/users/${editUser._id}`, editUser);
       setEditUser(null);
       fetchUsers();
     } catch (error) {

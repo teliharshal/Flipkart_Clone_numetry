@@ -1,4 +1,4 @@
-const User = require("../models/user");
+const User = require("../models/User");
 
 // Get all users
 exports.getUsers = async (req, res) => {
@@ -11,22 +11,21 @@ exports.getUsers = async (req, res) => {
 };
 
 // Add a new user
-exports.addUser = async (req, res) => {
+exports.createUser = async (req, res) => {
   try {
     const { name, email, role } = req.body;
 
-    // Check if email already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "Email already exists" });
+    if (!name || !email) {
+      return res.status(400).json({ message: 'Name and email are required.' });
     }
 
     const newUser = new User({ name, email, role });
     await newUser.save();
 
-    res.status(201).json({ message: "User added successfully", newUser });
-  } catch (error) {
-    res.status(500).json({ message: "Error adding user", error });
+    res.status(201).json({ message: 'User created successfully', user: newUser });
+  } catch (err) {
+    console.error('Error creating user:', err.message);
+    res.status(500).json({ message: 'Failed to create user' });
   }
 };
 
