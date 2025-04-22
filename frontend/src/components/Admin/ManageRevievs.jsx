@@ -86,65 +86,7 @@ const ManageReviews = () => {
       <h2 className="text-3xl font-semibold mb-6 mt-14 text-center">🛠 Manage Product Reviews</h2>
 
       {/* Review Submission Form */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-10 space-y-4">
-        <h3 className="text-xl font-bold mb-4">➕ Add New Review</h3>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            name="productName"
-            placeholder="Product Name"
-            value={formData.productName}
-            onChange={handleChange}
-            className="border rounded px-4 py-2"
-            required
-          />
-          <input
-            type="text"
-            name="userName"
-            placeholder="Customer Name"
-            value={formData.userName}
-            onChange={handleChange}
-            className="border rounded px-4 py-2"
-            required
-          />
-          <select
-            name="rating"
-            value={formData.rating}
-            onChange={handleChange}
-            className="border rounded px-4 py-2"
-          >
-            {[5, 4, 3, 2, 1].map((rate) => (
-              <option key={rate} value={rate}>
-                {'⭐️'.repeat(rate)}
-              </option>
-            ))}
-          </select>
-          <textarea
-            name="comment"
-            placeholder="Write your review..."
-            value={formData.comment}
-            onChange={handleChange}
-            className="border rounded px-4 py-2 col-span-full"
-            rows="4"
-            required
-          ></textarea>
-          <button
-            type="submit"
-            className="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 col-span-full w-fit"
-          >
-            Submit Review
-          </button>
-        </form>
-      </div>
-
-      {/* Filter */}
-      <div className="mb-4">
-        <input
-          className="border px-4 py-2 rounded w-full md:w-1/2"
-          placeholder="🔍 Search by product or customer name"
-          onChange={(e) => setFilter({ ...filter, search: e.target.value })}
-        />
-      </div>
+      
 
       {/* Review Table */}
       <div className="overflow-x-auto bg-white rounded-lg shadow-md">

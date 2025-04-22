@@ -7,6 +7,7 @@ const userRoutes = require("./routes/userRoute"); // User routes
 const orderRoute = require("./routes/orderRoute"); // Order routes
 const adminRoutes = require("./routes/adminRoutes"); // Admin routes
 const reviewRoutes = require("./routes/reviewRoutes"); // Review routes
+const customerRoutes = require('./routes/customerRoutes');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use("/api/users", userRoutes); // User Management
 app.use("/api/orders", orderRoute); // Order Management
 app.use("/api/admins", require("./routes/adminRoutes")); // Admin Management
 app.use("/api/reviews", reviewRoutes); // Review Management
+app.use('/api/customers', customerRoutes); // Customer Management
 
 
 // ✅ Database Connection

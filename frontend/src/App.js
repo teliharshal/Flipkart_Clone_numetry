@@ -62,6 +62,7 @@ const ManageOrders = React.lazy(() => import("./components/Admin/ManageOrders"))
 const ManageUsers = React.lazy(() => import("./components/Admin/ManageUsers")); // ✅ Added Manage Users
 const ManageAdmin = React.lazy(()=> import("./components/Admin/ManageAdmins")); // ✅ Added Manage Admins
 const ManageReviews = React.lazy(() => import("./components/Admin/ManageRevievs")); // ✅ Added Manage Reviews
+const CostomerManagement = React.lazy(() => import("./components/Admin/CostomerManagement")); // ✅ Added Customer Management
 
 function App() {
   const dispatch = useDispatch();
@@ -104,6 +105,7 @@ function App() {
         <Route path="/admin/users" element={<ProtectedRoute element={<ManageUsers />} />} />
         <Route path="/admin/admins" element={<ProtectedRoute element={<ManageAdmin />} />} />
         <Route path="/admin/reviews" element={<ProtectedRoute element={<ManageReviews />} />} />
+        <Route path="/admin/customers" element={<ProtectedRoute element={<CostomerManagement />} />} />
       
         {/* 404 Page */}
         <Route path="*" element={<NotFound />} />

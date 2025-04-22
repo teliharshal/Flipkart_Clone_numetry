@@ -188,6 +188,7 @@ const AdminDashboard = () => {
           { name: "Manage Products", link: "/admin/products", emoji: "📦" },
           { name: "Manage Orders", link: "/admin/orders", emoji: "🛒" },
           { name: "Manage Users", link: "/admin/users", emoji: "👤" },
+          {name: "Manage Customers",link: "/admin/customers",emoji: "👥"}
         ].map((section, index) => (
           <a
             key={index}
